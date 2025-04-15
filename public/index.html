@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>短縮URLサービス</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>短縮URLサービス</h1>
+  <form id="shortenForm">
+    <input type="text" id="originalUrl" placeholder="ここに長いURLを入力" required>
+    <button type="submit">短縮する</button>
+  </form>
+  <div class="result" id="result"></div>
+
+  <script>
+    // フォーム送信時の処理:
+    // 入力されたURLをAPIに送信し、短縮URLを取得して表示します
+    document.getElementById('shortenForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const originalUrl = document.getElementById('originalUrl').value;
+      try {
+        const response = await fetch('/shorten', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ originalUrl })
+        });
+        const data = await response.json();
+        if (data.shortUrl) {
+          document.getElementById('result').innerHTML = 
+            `<p>短縮されたURL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></p>`;
+        } else {
+          document.getElementById('result').textContent = data.error;
+        }
+      } catch (error) {
+        console.error(error);
+        document.getElementById('result').textContent = 'エラーが発生しました';
+      }
+    });
+  </script>
+</body>
+</html>
