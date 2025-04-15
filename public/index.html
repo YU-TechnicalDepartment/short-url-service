@@ -3,40 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <title>短縮URLサービス</title>
+  <!-- Google Fonts の Roboto を使用 -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* ページ全体の設定 */
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 50px auto;
+      font-family: 'Roboto', sans-serif;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* 縦スクロールを防止 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
+    /* コンテナの設定 */
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      max-width: 400px;
+      width: 90%;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    /* フォームの設定 */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    /* 入力欄をブロック要素にして中央に */
     input[type="text"] {
+      display: block;
+      margin: 0 auto;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       width: 80%;
-      padding: 10px;
-      font-size: 16px;
     }
+    /* ボタンの設定：指定色 #26a79a */
     button {
-      padding: 10px 20px;
+      display: block;
+      margin: 0 auto;
+      padding: 12px;
       font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background: #26a79a;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 50%;
     }
+    button:hover {
+      background: #1f8a7c;
+    }
+    /* 結果表示エリア */
     .result {
       margin-top: 20px;
+      font-size: 16px;
+    }
+    .error {
+      color: red;
     }
   </style>
 </head>
 <body>
-  <h1>短縮URLサービス</h1>
-  <form id="shortenForm">
-    <input type="text" id="originalUrl" placeholder="ここに長いURLを入力" required>
-    <button type="submit">短縮する</button>
-  </form>
-  <div class="result" id="result"></div>
+  <div class="container">
+    <h1>短縮URLサービス</h1>
+    <!-- URL入力フォーム -->
+    <form id="shortenForm">
+      <input type="text" id="originalUrl" placeholder="長いURLを入力してください" required>
+      <button type="submit">URLを短縮</button>
+    </form>
+    <!-- 結果表示エリア -->
+    <div class="result" id="result"></div>
+  </div>
 
   <script>
-    // フォーム送信時の処理:
-    // 入力されたURLをAPIに送信し、短縮URLを取得して表示します
+    // フォーム送信時にAPIを呼び出し、短縮URLを表示する処理
     document.getElementById('shortenForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const originalUrl = document.getElementById('originalUrl').value;
+      const originalUrl = document.getElementById('originalUrl').value.trim();
+      if (!originalUrl) {
+        document.getElementById('result').innerHTML = '<p class="error">URLを入力してください。</p>';
+        return;
+      }
       try {
         const response = await fetch('/shorten', {
           method: 'POST',
@@ -45,14 +105,14 @@
         });
         const data = await response.json();
         if (data.shortUrl) {
-          document.getElementById('result').innerHTML = 
-            `<p>短縮されたURL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></p>`;
+          document.getElementById('result').innerHTML =
+            `<p>短縮URL: <a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a></p>`;
         } else {
-          document.getElementById('result').textContent = data.error;
+          document.getElementById('result').innerHTML = `<p class="error">${data.error || 'エラーが発生しました'}</p>`;
         }
       } catch (error) {
         console.error(error);
-        document.getElementById('result').textContent = 'エラーが発生しました';
+        document.getElementById('result').innerHTML = '<p class="error">エラーが発生しました。もう一度お試しください。</p>';
       }
     });
   </script>
